@@ -21,11 +21,11 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-                self.displaySurface.fill(self.bgColor)
-                self.players.update()
-                self.players.draw(self.displaySurface)
-                pygame.display.update()
-                self.fpsClock.tick(30)
+            self.displaySurface.fill(self.bgColor)
+            self.players.update()
+            self.players.draw(self.displaySurface)
+            pygame.display.update()
+            self.fpsClock.tick(30)
 
 
 game = Game(800, 600, (255, 255, 255))
