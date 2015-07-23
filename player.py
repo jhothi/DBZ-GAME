@@ -62,7 +62,7 @@ class Player(pygame.sprite.Sprite):
         flipped_obj.makeTransformsPermanent()
         return flipped_obj
 
-    def update(self):
+    def update(self, dt):
         keys = pygame.key.get_pressed()
         if self.jumping:
             if keys[pygame.K_RIGHT]:
@@ -118,7 +118,7 @@ class Player(pygame.sprite.Sprite):
             self.image = jump_animation["down"]
 
         # TODO replace with collision with floor
-        if self.rect.y > 500:
+        if self.rect.y > 900:
             self.jumping = False
             self.dy = Player.dy
 

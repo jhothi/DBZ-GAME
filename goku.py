@@ -2,8 +2,8 @@ import player, pyganim, pygame
 
 
 class Goku(player.Player):
-    def __init__(self, position, *groups):
-        player.Player.__init__(self, position, *groups)
+    def __init__(self, position):
+        player.Player.__init__(self, position)
 
     def get_standing_right_animation(self):
         return pyganim.PygAnimation(
