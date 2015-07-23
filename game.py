@@ -1,7 +1,8 @@
-import pygame, sys
+import pygame, sys, tmx
 from pygame.locals import *
-from Player import Player
-
+from player import Player
+from goku import Goku
+from vegeta import Vegeta
 
 class Game:
     def __init__(self, width, height, bg_color):
@@ -9,12 +10,18 @@ class Game:
         self.displaySurface = pygame.display.set_mode((width, height))
         self.bgColor = bg_color
         pygame.display.set_caption("GOKU")
-        self.goku = Player(400,300)
+
+        self.tilemap = tmx.load("res/Maps/test.tmx", self.displaySurface.get_size())
+
+        self.goku = Goku((100,200))
+        self.vegeta = Vegeta((400, 200))
         self.players = pygame.sprite.Group()
         self.players.add(self.goku)
+        self.players.add(self.vegeta)
         self.fpsClock = pygame.time.Clock()
 
     def main(self):
+
         while True:  # Main Game Loop
             for event in pygame.event.get():
                 if event.type == QUIT:
