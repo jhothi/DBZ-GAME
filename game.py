@@ -13,12 +13,13 @@ class Game:
 
         self.tilemap = tmx.load("res/Maps/test.tmx", self.displaySurface.get_size())
         self.players = tmx.SpriteLayer()
-        self.goku = Goku((100,200))
+        self.goku = Goku((self.tilemap.layers["triggers"].find("player")[0].px,self.tilemap.layers["triggers"].find("player")[0].py))
         #self.vegeta = Vegeta((400, 200))
         self.players.add(self.goku)
-       # self.players.add(self.vegeta)
+        #self.players.add(self.vegeta)
         self.fpsClock = pygame.time.Clock()
         self.tilemap.layers.append(self.players)
+        print self.tilemap.layers["triggers"].find("player")[0].px
     def main(self):
         x = 10
         y = 12
@@ -30,12 +31,12 @@ class Game:
                     sys.exit()
 
             self.displaySurface.fill(self.bgColor)
-            self.tilemap.set_focus(self.goku.rect.x, self.goku.rect.y)
-            self.tilemap.update(dt / 1000)
+            #self.tilemap.set_focus(self.goku.rect.x, self.goku.rect.y)
+            self.tilemap.update(dt / 1000, self)
             self.tilemap.draw(self.displaySurface)
             pygame.display.update()
 
 
 
-game = Game(800, 600, (255, 255, 255))
+game = Game(800, 600, (0,0,255))
 game.main()
