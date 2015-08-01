@@ -12,18 +12,13 @@
     <property name="enemy" value=""/>
    </properties>
   </tile>
-  <tile id="3">
-   <properties>
-    <property name="reverse" value=""/>
-   </properties>
-  </tile>
  </tileset>
  <tileset firstgid="7" name="tiles" tilewidth="32" tileheight="32">
   <image source="res/Map/tiles.png" width="480" height="256"/>
  </tileset>
  <layer name="map" width="50" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt1EEKgCAQQNG5lyeZ+1+kjUJBERbY1/6D2biaj2iJ+ZU6s7ODxQ4WO1jsYLGDxQ4WO1jsYLGDxY6jrHN2PsLbjlF73nnaQdm/6e2g7d/0dGRcv4Ov/eG/ymDfwd5q97HCbDMWHWo=
+   eJztk0EKwCAMBPMvf9FbHuL/i+DBlpYaXcsKO5CLh8TJkmT7k2rtjjy4kAcX8uBCHlzIgwt5cCEPLuQRJy/srTzmQGejPK54raf3LxDZzHr0/PMPRj0Q/0feSNSDZf8tZR8RD7f3O4jORZEt7jE7b0XPHg83XAZosvV7sHJ3aD2Ozas4nA+HK1M=
   </data>
  </layer>
  <objectgroup name="triggers" width="50" height="30" visible="0">
@@ -78,11 +73,82 @@
     <property name="wall" value=""/>
    </properties>
   </object>
-  <object gid="2" x="256" y="864"/>
+  <object gid="2" x="224" y="864"/>
   <object gid="2" x="576" y="672"/>
-  <object gid="4" x="192" y="864"/>
-  <object gid="4" x="288" y="864"/>
-  <object gid="4" x="736" y="672"/>
-  <object gid="4" x="544" y="672"/>
+  <object name="reverse" gid="4" x="192" y="864">
+   <properties>
+    <property name="reverse" value="left"/>
+   </properties>
+  </object>
+  <object name="reverse" gid="4" x="288" y="864">
+   <properties>
+    <property name="reverse" value="right"/>
+   </properties>
+  </object>
+  <object name="reverse" gid="4" x="736" y="672">
+   <properties>
+    <property name="reverse" value="right"/>
+   </properties>
+  </object>
+  <object name="reverse" gid="4" x="544" y="672">
+   <properties>
+    <property name="reverse" value="left"/>
+   </properties>
+  </object>
+  <object name="wall" x="832" y="544" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="928" y="608" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1024" y="672" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="960" y="736" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="896" y="800" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="800" y="832" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1408" y="896" width="160" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1440" y="864" width="128" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1472" y="832" width="96" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1504" y="800" width="64" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
+  <object name="wall" x="1536" y="768" width="32" height="32">
+   <properties>
+    <property name="wall" value=""/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

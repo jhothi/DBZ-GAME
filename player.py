@@ -1,11 +1,11 @@
-import pyganim, pygame
+import pyganim, pygame, utils
 
 
 class Player(pygame.sprite.Sprite):
     # CONSTANTS
     dx = 4
     dy = -4
-    ANIMATION_DT = .3
+    ANIMATION_DT = .15
     GRAVITY_ACCELERATION = .1  # 3 px/sec
     JUMP_HALT_DELTA = 1  # if dy is in range [-JUMP_HALT_DELTA, JUMP_HALT_DELTA] jump halt animation will be displayed
 
@@ -45,27 +45,21 @@ class Player(pygame.sprite.Sprite):
 
     # Flip right facing animations
     def get_standing_left_animation(self):
-        return self.flip_animation(self.get_standing_right_animation(), True, False)
+        return utils.flip_animation(self.get_standing_right_animation(), True, False)
 
     def get_walking_left_animation(self):
-        return self.flip_animation(self.get_walking_right_animation(), True, False)
+        return utils.flip_animation(self.get_walking_right_animation(), True, False)
 
     def get_jumping_left_animations(self):
         jump_left_animations = {}
         jump_right_animations = self.get_jumping_right_animations()
         for key, val in jump_right_animations.iteritems():
             if key == "land animation":
-                jump_left_animations[key] = self.flip_animation(jump_right_animations[key], True, False)
+                jump_left_animations[key] = utils.flip_animation(jump_right_animations[key], True, False)
             else:
                 jump_left_animations[key] = pygame.transform.flip(jump_right_animations[key], True, False)
 
         return jump_left_animations
-
-    def flip_animation(self, animation_obj, flipX, flipY):
-        flipped_obj = animation_obj.getCopy()
-        flipped_obj.flip(flipX, flipY)
-        flipped_obj.makeTransformsPermanent()
-        return flipped_obj
 
     def update(self, dt, game):
         last = self.rect.copy()
@@ -92,7 +86,7 @@ class Player(pygame.sprite.Sprite):
             self.jump()
         else:
             self.set_animation(self.animation_dict[self.direction][self.state])
-        print "RESTING: %r  %s %s" % (self.resting, self.state, self.direction)
+        #print "RESTING: %r  %s %s" % (self.resting, self.state, self.direction)
 
         new = self.rect
         self.resting = False
@@ -157,3 +151,71 @@ class Player(pygame.sprite.Sprite):
             self.set_static_image(jump_animation["halt"], True, False)
         elif self.dy > Player.JUMP_HALT_DELTA:
             self.set_static_image(jump_animation["down"])
+
+
+class Goku(Player):
+    def __init__(self, position):
+        Player.__init__(self, position)
+        print self.rect.size
+
+
+    def get_standing_right_animation(self):
+        return pyganim.PygAnimation(
+            [('res/Sprites/Goku/goku_standing_0.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_standing_1.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_standing_2.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_standing_3.png', Goku.ANIMATION_DT)])
+
+    def get_walking_right_animation(self):
+        return pyganim.PygAnimation(
+            [('res/Sprites/Goku/goku_walking_right_0.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_walking_right_1.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_walking_right_2.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_walking_right_3.png', Goku.ANIMATION_DT)])
+
+    def get_jumping_right_animations(self):
+        jump_start_right = pygame.image.load("res/Sprites/Goku/goku_jumping_0.png")
+        jump_up_right = pygame.image.load("res/Sprites/Goku/goku_jumping_1.png")
+        jump_halt_right = pygame.image.load("res/Sprites/Goku/goku_jumping_2.png")
+        jump_down_right = pygame.image.load("res/Sprites/Goku/goku_jumping_3.png")
+        landing = pyganim.PygAnimation(
+            [('res/Sprites/Goku/goku_jumping_4.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_jumping_5.png', Goku.ANIMATION_DT),
+             ('res/Sprites/Goku/goku_jumping_6.png', Goku.ANIMATION_DT)
+             ])
+        return {"start": jump_start_right, "up": jump_up_right, "halt": jump_halt_right,
+                                  "down": jump_down_right,
+                                  "land animation": landing}
+
+
+class Vegeta(Player):
+    def __init__(self, position):
+        Player.__init__(self, position)
+
+    def get_standing_right_animation(self):
+        return pyganim.PygAnimation(
+            [('res/Sprites/Vegeta/vegeta_standing_0.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_standing_1.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_standing_2.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_standing_3.png', Vegeta.ANIMATION_DT)])
+
+    def get_walking_right_animation(self):
+        return pyganim.PygAnimation(
+            [('res/Sprites/Vegeta/vegeta_walking_right_0.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_walking_right_1.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_walking_right_2.png', Vegeta.ANIMATION_DT)])
+
+    def get_jumping_right_animations(self):
+        jump_start_right = pygame.image.load("res/Sprites/Vegeta/vegeta_jumping_0.png")
+        jump_up_right = pygame.image.load("res/Sprites/Vegeta/vegeta_jumping_1.png")
+        jump_halt_right = pygame.image.load("res/Sprites/Vegeta/vegeta_jumping_2.png")
+        jump_down_right = pygame.image.load("res/Sprites/Vegeta/vegeta_jumping_3.png")
+        landing = pyganim.PygAnimation(
+            [('res/Sprites/Vegeta/vegeta_jumping_4.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_jumping_5.png', Vegeta.ANIMATION_DT),
+             ('res/Sprites/Vegeta/vegeta_jumping_6.png', Vegeta.ANIMATION_DT)
+             ])
+        return {"start": jump_start_right, "up": jump_up_right, "halt": jump_halt_right,
+                                  "down": jump_down_right,
+                                  "land animation": landing}
+

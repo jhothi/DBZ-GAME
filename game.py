@@ -1,9 +1,7 @@
 import pygame, sys, tmx
 from pygame.locals import *
-from player import Player
-from goku import Goku
-from enemy import Enemy
-from vegeta import Vegeta
+from player import *
+from enemy import *
 
 
 class Game:
@@ -16,10 +14,11 @@ class Game:
         self.tilemap = tmx.load("test.tmx", self.displaySurface.get_size())
         self.players = tmx.SpriteLayer()
         self.enemies = tmx.SpriteLayer()
+        self.blasts = tmx.SpriteLayer()
         player_cell = self.tilemap.layers["triggers"].find("player")[0]
         enemy_cells = self.tilemap.layers["triggers"].find("enemy")
         for cell in enemy_cells:
-            self.enemies.add(Enemy((cell.px, cell.py)))
+            self.enemies.add(Henchmen2((cell.left, cell.bottom)))
 
         self.goku = Goku((player_cell.px, player_cell.py))
         #  self.vegeta = Vegeta((400, 200))
@@ -28,6 +27,7 @@ class Game:
         self.fpsClock = pygame.time.Clock()
         self.tilemap.layers.append(self.players)
         self.tilemap.layers.append(self.enemies)
+        self.tilemap.layers.append(self.blasts)
 
     def main(self):
         while True:  # Main Game Loop
