@@ -1,10 +1,11 @@
 import pyganim, pygame, utils
+from blast import KiBlast
 
 
 class Player(pygame.sprite.Sprite):
     # CONSTANTS
     dx = 4
-    dy = -4
+    dy = -3.25
     ANIMATION_DT = .15
     GRAVITY_ACCELERATION = .1  # 3 px/sec
     JUMP_HALT_DELTA = 1  # if dy is in range [-JUMP_HALT_DELTA, JUMP_HALT_DELTA] jump halt animation will be displayed
@@ -18,15 +19,22 @@ class Player(pygame.sprite.Sprite):
         self.walking_left_animation = self.get_walking_left_animation()
         self.jumping_right_animations = self.get_jumping_right_animations()
         self.jumping_left_animations = self.get_jumping_left_animations()
+        self.shooting_right_animation = self.get_shooting_right_animation()
+        self.shooting_left_animation = self.get_shooting_left_animations()
         self.animation_dict = {"RIGHT": {"STANDING": self.standing_right_animation,
-                                         "WALKING": self.walking_right_animation},
+                                         "WALKING": self.walking_right_animation,
+                                         "SHOOTING": self.shooting_right_animation},
                                "LEFT": {"STANDING": self.standing_left_animation,
-                                        "WALKING": self.walking_left_animation}}
+                                        "WALKING": self.walking_left_animation,
+                                        "SHOOTING": self.shooting_left_animation}}
 
         self.direction = "RIGHT"  # direction is one of "RIGHT" or "LEFT"
         self.state = "WALKING"  # state is one of "WALKING" or "STANDING"
         self.resting = False
+        self.shooting = False
+        self.fire = False
         self.dy = 0
+        self.blast = None
         self.animateObj = self.standing_right_animation
         self.rect = self.animateObj.getRect()
         self.rect.topleft = position
@@ -42,6 +50,9 @@ class Player(pygame.sprite.Sprite):
 
     def get_jumping_right_animations(self):
         return {}
+
+    def get_shooting_right_animation(self):
+        return None
 
     # Flip right facing animations
     def get_standing_left_animation(self):
@@ -61,46 +72,64 @@ class Player(pygame.sprite.Sprite):
 
         return jump_left_animations
 
+    def get_shooting_left_animations(self):
+        return utils.flip_animation(self.get_shooting_right_animation(), True, False)
+
     def update(self, dt, game):
         last = self.rect.copy()
         keys = pygame.key.get_pressed()
-        if self.resting and keys[pygame.K_UP]:
-            self.dy = Player.dy
-            self.resting = False
-        elif keys[pygame.K_RIGHT]:
-            self.direction = "RIGHT"
-            self.state = "WALKING"
-            self.rect.x += Player.dx
-        elif keys[pygame.K_LEFT]:
-            self.direction = "LEFT"
-            self.state = "WALKING"
-            self.rect.x -= Player.dx
-        elif self.resting:
-            self.state = "STANDING"
+
+        if self.resting and keys[pygame.K_SPACE]:
+            self.state = "SHOOTING"
+            self.shooting = True
+
+        if not self.shooting:
+            if self.resting and keys[pygame.K_UP]:
+                self.dy = Player.dy
+                self.resting = False
+                # blast = KiBlast((self.rect.right, self.rect.top + 10),"RIGHT", game.blasts)
+            elif keys[pygame.K_RIGHT]:
+                self.direction = "RIGHT"
+                self.state = "WALKING"
+                self.rect.x += Player.dx
+            elif keys[pygame.K_LEFT]:
+                self.direction = "LEFT"
+                self.state = "WALKING"
+                self.rect.x -= Player.dx
+            elif self.resting:
+                self.state = "STANDING"
 
         # move down
         self.dy += Player.GRAVITY_ACCELERATION
         self.rect.y += self.dy
 
-        if not self.resting:
+        if self.shooting:
+            self.shoot(game.blasts)
+        elif not self.resting:
             self.jump()
         else:
             self.set_animation(self.animation_dict[self.direction][self.state])
-        #print "RESTING: %r  %s %s" % (self.resting, self.state, self.direction)
+        # print "RESTING: %r  %s %s" % (self.resting, self.state, self.direction)
 
         new = self.rect
         self.resting = False
         self.collision(game, last, new)
-
-        game.tilemap.set_focus(new.bottomleft[0], new.bottomleft[1])
+        game.tilemap.set_focus(new.left, new.bottom)
 
     def collision(self, game, last, new):
         for cell in game.tilemap.layers['triggers'].collide(new, 'wall'):
-            if last.right <= cell.left and new.right > cell.left:
+
+            if last.right <= cell.left < new.right:
                 if last.bottom != cell.top:  # allow sliding collision
+                    if self.shooting:
+                        self.animateObj.stop()
+                        self.shooting = False
                     new.right = cell.left
-            if last.left >= cell.right and new.left < cell.right:
+            if last.left >= cell.right > new.left:
                 if last.bottom != cell.top:  # allow sliding collision
+                    if self.shooting:
+                        self.animateObj.stop()
+                        self.shooting = False
                     new.left = cell.right
             if last.bottom <= cell.top and new.bottom >= cell.top:
                 self.resting = True
@@ -119,12 +148,16 @@ class Player(pygame.sprite.Sprite):
         :param animation_obj: a pyganim animation object to load as current image
         :return: None
         """
-        position = self.rect.bottomleft
+        rect = self.rect.copy()
         self.animateObj = animation_obj
         self.image = self.animateObj.getCurrentFrame()
         self.rect = self.image.get_rect()
-        # self.image = pygame.Surface(self.rect.size)
-        self.rect.bottomleft = position
+        if self.direction == "RIGHT":
+            self.rect.bottomleft = rect.bottomleft
+        else:
+            self.rect.bottomright = rect.bottomright
+
+        #self.image = pygame.Surface(self.rect.size)
         self.animateObj.play()
 
     def set_static_image(self, image_obj, topleft=True, change_rect=True):
@@ -152,12 +185,40 @@ class Player(pygame.sprite.Sprite):
         elif self.dy > Player.JUMP_HALT_DELTA:
             self.set_static_image(jump_animation["down"])
 
+    def shoot(self, group):
+        animation = self.animation_dict[self.direction]["SHOOTING"]
+        if animation.getCurrentFrame() == animation.getFrame(7) and not self.fire:
+            self.fire = True
+            if self.direction == "RIGHT":
+                position = (self.rect.right - 46, self.rect.top + 17)
+            else:
+                position = (self.rect.left + 46, self.rect.top + 17)
+
+            self.blast = KiBlast(position, self.direction, group)
+
+        # if self.blast is not None:
+        #      if self.blast.is_animation_over():
+        #         self.fire = False
+        #         self.shooting = False
+        #         self.state = "STANDING"
+        #         self.animateObj.stop()
+
+        if self.animateObj.isFinished():
+            print "finished"
+            animation.stop()
+            self.shooting = False
+            self.fire = False
+        else:
+            self.set_animation(animation)
+
 
 class Goku(Player):
+
+    SHOOTING_DT = .05
+
     def __init__(self, position):
         Player.__init__(self, position)
         print self.rect.size
-
 
     def get_standing_right_animation(self):
         return pyganim.PygAnimation(
@@ -184,8 +245,21 @@ class Goku(Player):
              ('res/Sprites/Goku/goku_jumping_6.png', Goku.ANIMATION_DT)
              ])
         return {"start": jump_start_right, "up": jump_up_right, "halt": jump_halt_right,
-                                  "down": jump_down_right,
-                                  "land animation": landing}
+                "down": jump_down_right,
+                "land animation": landing}
+
+    def get_shooting_right_animation(self):
+        return pyganim.PygAnimation([('res/Sprites/Goku/goku_shooting_0.png', Goku.ANIMATION_DT),
+                                     ('res/Sprites/Goku/goku_shooting_1.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_2.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_3.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_4.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_5.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_6.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_7.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_8.png', Goku.SHOOTING_DT),
+                                     ('res/Sprites/Goku/goku_shooting_9.png', Goku.SHOOTING_DT),
+                                     ], False)
 
 
 class Vegeta(Player):
@@ -216,6 +290,5 @@ class Vegeta(Player):
              ('res/Sprites/Vegeta/vegeta_jumping_6.png', Vegeta.ANIMATION_DT)
              ])
         return {"start": jump_start_right, "up": jump_up_right, "halt": jump_halt_right,
-                                  "down": jump_down_right,
-                                  "land animation": landing}
-
+                "down": jump_down_right,
+                "land animation": landing}

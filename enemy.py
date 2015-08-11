@@ -59,7 +59,14 @@ class Enemy(pygame.sprite.Sprite):
                     self.direction = "RIGHT"
                     self.rect.x += Enemy.dx
 
-        player_hit_list = pygame.sprite.spritecollide(self, game.players, True)
+        player_hit_list = pygame.sprite.spritecollide(self, game.players, False)
+        for player in player_hit_list:
+            if player.shooting:
+                game.enemies.remove(self)
+                game.blasts.remove(self.blast)
+                player.shooting = False
+            else:
+                game.players.remove(player)
 
     def shoot(self, position, group):
         # shoot logic
@@ -139,4 +146,4 @@ class Henchmen2(Enemy):
         return 9
 
     def get_blast(self, position, direction, group):
-        return KiBlast(position, direction, group)
+        return KiBeam(position, direction, group)
