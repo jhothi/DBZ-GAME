@@ -3,6 +3,9 @@ from blast import *
 import utils
 
 
+"""
+An Enemy has a position and moves only left and right, and shoots at random
+"""
 class Enemy(pygame.sprite.Sprite):
     dx = 1
     SHOOT_PROBABILITY = .01  # per frame
@@ -66,10 +69,15 @@ class Enemy(pygame.sprite.Sprite):
                 game.blasts.remove(self.blast)
                 player.shooting = False
             else:
-                game.players.remove(player)
+                player.lose_life(game)
 
     def shoot(self, position, group):
-        # shoot logic
+        """
+        Shoots a blast at random and adds it to the group
+        :param position: the place to launch the blast
+        :param group: the group to add the blasts
+        :return:
+        """
         animation = None
         if self.direction == "RIGHT":
             animation = self.shooting_animation_right
@@ -81,9 +89,12 @@ class Enemy(pygame.sprite.Sprite):
 
         num = random.randint(0, 100)
 
+        # Wait for when random number matches
         if num <= 100 * Enemy.SHOOT_PROBABILITY and not self.shooting:
             animation.play()
             self.shooting = True
+
+        #when done getting ready for shot, fire and add blast to group
         if animation.isFinished() and not self.fire:
             # fire shot
             self.fire = True
@@ -93,6 +104,7 @@ class Enemy(pygame.sprite.Sprite):
                 position = (self.rect.left, self.rect.top + self.shooting_delta())
             self.blast = self.get_blast(position, self.direction, group)
 
+        # When blast is done reset state
         if self.blast is not None:
             if self.blast.is_animation_over():
                 self.shooting = False
@@ -102,6 +114,11 @@ class Enemy(pygame.sprite.Sprite):
                 self.blast = None
 
     def set_image(self, image):
+        """
+        Set image and place bounding rect depending on current direction
+        :param image: the new image to render
+        :return: None
+        """
         old_rect = self.rect.copy()
         self.image = image
         self.rect = image.get_rect()

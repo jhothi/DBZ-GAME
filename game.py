@@ -2,6 +2,7 @@ import pygame, sys, tmx
 from pygame.locals import *
 from player import *
 from enemy import *
+from checkpoint import Checkpoint
 
 
 class Game:
@@ -15,10 +16,16 @@ class Game:
         self.players = tmx.SpriteLayer()
         self.enemies = tmx.SpriteLayer()
         self.blasts = tmx.SpriteLayer()
+        self.checkpoints = Checkpoint()
         player_cell = self.tilemap.layers["triggers"].find("player")[0]
         enemy_cells = self.tilemap.layers["triggers"].find("enemy")
+        checkpoint_cells = self.tilemap.layers["triggers"].find("checkpoint")
+
         for cell in enemy_cells:
             self.enemies.add(Henchmen2((cell.left, cell.bottom)))
+
+        for checkpoint in checkpoint_cells:
+            self.checkpoints.add_checkpoint((checkpoint.px, checkpoint.py))
 
         self.goku = Goku((player_cell.px, player_cell.py))
         #  self.vegeta = Vegeta((400, 200))

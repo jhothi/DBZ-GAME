@@ -1,6 +1,8 @@
 import pygame, pyganim
 
-
+"""
+Represents Beam attacks which grow in length
+"""
 class Beam(pygame.sprite.Sprite):
     dx = 3
 
@@ -38,15 +40,25 @@ class Beam(pygame.sprite.Sprite):
         return self.bullet_destroyed
 
     def extend_beam(self):
+        """
+        Moves the beam by appending more images to middle of the image
+        :return: None
+        """
+        # Increase beam width by dx
         self.beam = pygame.transform.scale(self.beam, (self.beam.get_width() + Beam.dx, self.beam.get_height()))
         beam_rect = self.beam.get_rect()
         head_rect = self.head.get_rect()
+        # Create new box for longer beam
         full_beam = pygame.Surface((beam_rect.width + head_rect.width, max(beam_rect.height, head_rect.height)),
                                    pygame.SRCALPHA)
         full_beam_rect = full_beam.get_rect()
+
+        # Render beam and then attach the end of the beam (head) to it
         full_beam.blit(self.beam, (0, 4))
         full_beam.blit(self.head, (beam_rect.right - 4, full_beam_rect.top))
         self.rect = full_beam_rect
+
+        # If facing left the flip the whole rectangle
         if self.direction == "LEFT":
             full_beam = pygame.transform.flip(full_beam, True, False)
             self.rect.topright = self.start_position
@@ -55,6 +67,14 @@ class Beam(pygame.sprite.Sprite):
         return full_beam
 
     def collision(self, last, new, game):
+        """
+        Checks if the beam hit a player or a wall
+        and stops when the width greater than 100 px
+        :param last: previous position
+        :param new: new position
+        :param game: contains the player and walls
+        :return: None
+        """
         for cell in game.tilemap.layers['triggers'].collide(new, 'wall'):
             if last.right <= cell.left < new.right:
                 self.destroy_bullet()
@@ -62,9 +82,10 @@ class Beam(pygame.sprite.Sprite):
             if last.left <= cell.right < new.left:
                 self.destroy_bullet()
 
-        players = pygame.sprite.spritecollide(self, game.players, True)
+        players = pygame.sprite.spritecollide(self, game.players, False)
         if len(players) > 0:
             self.destroy_bullet()
+            players[0].lose_life(game)
 
         if self.rect.width > 100:
             self.destroy_bullet()

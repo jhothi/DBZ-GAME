@@ -1,8 +1,12 @@
 import pyganim, pygame, utils
 from blast import KiBlast
 
-
+"""
+A Player moves between states (given keyboard input)
+contains a position, direction, and an image
+"""
 class Player(pygame.sprite.Sprite):
+
     # CONSTANTS
     dx = 4
     dy = -3.25
@@ -35,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.fire = False
         self.dy = 0
         self.blast = None
+        self.lives = 3
         self.animateObj = self.standing_right_animation
         self.rect = self.animateObj.getRect()
         self.rect.topleft = position
@@ -61,6 +66,7 @@ class Player(pygame.sprite.Sprite):
     def get_walking_left_animation(self):
         return utils.flip_animation(self.get_walking_right_animation(), True, False)
 
+    #intialize a dictionary of jumping images
     def get_jumping_left_animations(self):
         jump_left_animations = {}
         jump_right_animations = self.get_jumping_right_animations()
@@ -76,6 +82,12 @@ class Player(pygame.sprite.Sprite):
         return utils.flip_animation(self.get_shooting_right_animation(), True, False)
 
     def update(self, dt, game):
+        """
+        Updates the player state each tick of the game
+        :param dt: the amount of time passed since last call
+        :param game: the game object with refrence to all sprites
+        :return: None
+        """
         last = self.rect.copy()
         keys = pygame.key.get_pressed()
 
@@ -117,6 +129,14 @@ class Player(pygame.sprite.Sprite):
         game.tilemap.set_focus(new.left, new.bottom)
 
     def collision(self, game, last, new):
+        """
+        Detects any collision with walls and moves player to previous position if collision
+        If shooting it stops the shoot animation when colliding with the wall
+        :param game: the game object (holds the walls)
+        :param last:the previous position
+        :param new: position
+        :return: None
+        """
         for cell in game.tilemap.layers['triggers'].collide(new, 'wall'):
 
             if last.right <= cell.left < new.right:
@@ -139,8 +159,6 @@ class Player(pygame.sprite.Sprite):
                 new.top = cell.bottom
                 self.dy = 0
 
-    def render(self, surface, pos):
-        self.animateObj.blit(surface, pos)
 
     def set_animation(self, animation_obj):
         """
@@ -157,10 +175,17 @@ class Player(pygame.sprite.Sprite):
         else:
             self.rect.bottomright = rect.bottomright
 
-        #self.image = pygame.Surface(self.rect.size)
+        # self.image = pygame.Surface(self.rect.size)
         self.animateObj.play()
 
     def set_static_image(self, image_obj, topleft=True, change_rect=True):
+        """
+        Sets the image to a still image rather than an animation object
+        :param image_obj: the image (pygame.Surface)
+        :param topleft: whether to postion pinned to the top left or bottomleft
+        :param change_rect: whether to change the bounding rect
+        :return: None
+        """
         rect = self.rect
         old_rect = self.rect
         self.image = image_obj
@@ -173,6 +198,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottomleft = old_rect.bottomleft
 
     def jump(self):
+        """
+        Depending on direction and dy loads the correct jump image
+        :return: None
+        """
         if self.direction == "RIGHT":
             jump_animation = self.jumping_right_animations
         else:
@@ -186,7 +215,14 @@ class Player(pygame.sprite.Sprite):
             self.set_static_image(jump_animation["down"])
 
     def shoot(self, group):
+        """
+        Shoots a blast by waiting for the correct frame and then creates a new blast
+        :param group: the group to add the blast to
+        :return: None
+        """
         animation = self.animation_dict[self.direction]["SHOOTING"]
+
+        # Check if reached the last frame to shoot and that we have not already fired
         if animation.getCurrentFrame() == animation.getFrame(7) and not self.fire:
             self.fire = True
             if self.direction == "RIGHT":
@@ -196,13 +232,7 @@ class Player(pygame.sprite.Sprite):
 
             self.blast = KiBlast(position, self.direction, group)
 
-        # if self.blast is not None:
-        #      if self.blast.is_animation_over():
-        #         self.fire = False
-        #         self.shooting = False
-        #         self.state = "STANDING"
-        #         self.animateObj.stop()
-
+        # Once done shooting animation go reset states
         if self.animateObj.isFinished():
             print "finished"
             animation.stop()
@@ -211,9 +241,20 @@ class Player(pygame.sprite.Sprite):
         else:
             self.set_animation(animation)
 
+    def lose_life(self, game):
+        """
+        Decrements lives until 0, resets player to closest previous checkpoint
+        :param game: the game contains checkponints
+        :return: None
+        """
+        self.lives -= 1
+        if self.lives == 0:
+            game.players.remove(self)
+        else:
+            self.rect.topleft = game.checkpoints.get_nearest_chekpoint((self.rect.x, self.rect.y))
+
 
 class Goku(Player):
-
     SHOOTING_DT = .05
 
     def __init__(self, position):
