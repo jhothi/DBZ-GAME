@@ -17,28 +17,44 @@
     <property name="checkpoint" value=""/>
    </properties>
   </tile>
+  <tile id="4">
+   <properties>
+    <property name="finish" value=""/>
+   </properties>
+  </tile>
  </tileset>
  <tileset firstgid="7" name="tiles" tilewidth="32" tileheight="32">
   <image source="res/Map/tiles.png" width="480" height="256"/>
  </tileset>
- <layer name="map" width="50" height="30">
+ <tileset firstgid="127" name="Namek-1-" tilewidth="32" tileheight="32">
+  <image source="res/Map/Namek-1-.jpg" width="1600" height="960"/>
+ </tileset>
+ <tileset firstgid="1627" name="test" tilewidth="32" tileheight="32">
+  <image source="res/Map/test.png" width="160" height="32"/>
+ </tileset>
+ <layer name="bg" width="50" height="30">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
- <objectgroup name="triggers" width="50" height="30">
+ <layer name="map" width="50" height="30">
+  <data encoding="base64" compression="zlib">
+   eJzt01sKgCAQQFG/3GQO7X8XISWIGCqOOh/3wCAV6DzSOQAAAACARZc/nQH+MJu1xL9R6um7hdkEAznM0Mj/5Bws9n+0H+kO1O7BynNbe90be7viH0o1tOqIfQ9fzM5AW17DznloKmtIdQTfHzLwXbK19r6238izFOsDtE8gTg==
+  </data>
+ </layer>
+ <objectgroup name="triggers" width="50" height="30" visible="0">
   <object gid="1" x="64" y="608"/>
-  <object name="wall" x="0" y="0" width="32" height="960">
+  <object name="wall" x="-32" y="0" width="32" height="960">
    <properties>
     <property name="wall" value=""/>
    </properties>
   </object>
-  <object name="Wall" x="1568" y="0" width="32" height="960">
+  <object name="Wall" x="1600" y="0" width="32" height="960">
    <properties>
     <property name="wall" value=""/>
    </properties>
   </object>
-  <object name="wall" x="32" y="928" width="1536" height="32">
+  <object name="wall" x="0" y="928" width="1600" height="32">
    <properties>
     <property name="wall" value=""/>
    </properties>
@@ -157,5 +173,6 @@
   </object>
   <object gid="3" x="416" y="672"/>
   <object gid="3" x="64" y="832"/>
+  <object gid="5" x="1536" y="768"/>
  </objectgroup>
 </map>

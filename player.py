@@ -34,6 +34,7 @@ class Player(pygame.sprite.Sprite):
 
         self.direction = "RIGHT"  # direction is one of "RIGHT" or "LEFT"
         self.state = "WALKING"  # state is one of "WALKING" or "STANDING"
+        self.icon = self.get_icon()
         self.resting = False
         self.shooting = False
         self.fire = False
@@ -58,6 +59,9 @@ class Player(pygame.sprite.Sprite):
 
     def get_shooting_right_animation(self):
         return None
+
+    def get_icon(self):
+        return  None
 
     # Flip right facing animations
     def get_standing_left_animation(self):
@@ -127,6 +131,10 @@ class Player(pygame.sprite.Sprite):
         self.resting = False
         self.collision(game, last, new)
         game.tilemap.set_focus(new.left, new.bottom)
+        #print game.tilemap.width
+        #print game.tilemap.px_width
+        #print game.tilemap.view_w
+        print game.tilemap.viewport.x
 
     def collision(self, game, last, new):
         """
@@ -252,6 +260,7 @@ class Player(pygame.sprite.Sprite):
             game.players.remove(self)
         else:
             self.rect.topleft = game.checkpoints.get_nearest_chekpoint((self.rect.x, self.rect.y))
+            self.direction = "RIGHT"
 
 
 class Goku(Player):
@@ -301,6 +310,9 @@ class Goku(Player):
                                      ('res/Sprites/Goku/goku_shooting_8.png', Goku.SHOOTING_DT),
                                      ('res/Sprites/Goku/goku_shooting_9.png', Goku.SHOOTING_DT),
                                      ], False)
+
+    def get_icon(self):
+        return pygame.image.load('res/Sprites/Goku/goku_icon1.png')
 
 
 class Vegeta(Player):
