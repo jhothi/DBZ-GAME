@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import pygame, sys, tmx
 from pygame.locals import *
 from player import *
